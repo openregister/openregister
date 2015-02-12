@@ -92,7 +92,7 @@ def thing_by_hash_suffix(hash, suffix="html"):
 
 @app.route("/")
 def things():
-    return find_things("Thing", query={})
+    return find_things("Thing", query={}, page=int(request.args.get('page', 1)))
 
 
 @app.route("/name/<name>")
@@ -108,10 +108,13 @@ def find_latest_thing(query={}, suffix="html"):
     return thing_by_hash_suffix(thing.hash, "html")
 
 
-def find_things(tag, query={}, suffix="html"):
+def find_things(tag, query={}, suffix="html", page=None):
     register_name = subdomain(request)
     register = find_or_initalise_register(register_name)
-    meta, things = register._store.find(query)
+
+    if not page:
+        page = 1
+    meta, things = register._store.find(query, page)
 
     things_list = [[thing.hash, thing.primitive] for thing in things]
     thing_keys = []
