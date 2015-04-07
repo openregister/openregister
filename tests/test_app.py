@@ -39,9 +39,12 @@ def test_search():
     response = app.get('/search.json?field=someField&value=thevalue',
                        base_url=field_url)
     assert response.status_code == 200
-    body = response.data.decode("utf-8")
-    assert body == '[{"id":123,"someField":"thevalue"},' \
-                   '{"id":678,"someField":"thevalue"}]'
+    data = json.loads(response.data.decode('utf-8'))
+    assert len(data) == 2
+    assert data[0]['hash']  # just assert there is a hash for now
+    assert data[0]['entry'] == {'id': 123, 'someField': 'thevalue'}
+    assert data[1]['hash']
+    assert data[1]['entry'] == {'id': 678, 'someField': 'thevalue'}
 
 
 def test_search_allows_partial_match():
@@ -58,8 +61,8 @@ def test_search_allows_partial_match():
     assert response.status_code == 200
     data = json.loads(response.data.decode('utf-8'))
     assert len(data) == 1
-    assert data[0]["id"] == 123
-    assert data[0]["field"] == "value"
+    assert data[0]['hash']  # just assert there is a hash for now
+    assert data[0]["entry"] == {'id': 123, 'field': 'value'}
 
 
 def test_search_allows_case_insensitive_match():
@@ -76,5 +79,5 @@ def test_search_allows_case_insensitive_match():
     assert response.status_code == 200
     data = json.loads(response.data.decode('utf-8'))
     assert len(data) == 1
-    assert data[0]["id"] == 123
-    assert data[0]["field"] == "VALUE"
+    assert data[0]['hash']  # just assert there is a hash for now
+    assert data[0]["entry"] == {'id': 123, 'field': 'VALUE'}
