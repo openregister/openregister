@@ -46,7 +46,7 @@
                   {% endif %}
                 </th>
               {% endfor %}
-              </tr>
+              <th>hash</th>
               </tr>
             </thead>
 
@@ -57,6 +57,7 @@
               {% for key in entry_keys %}
                 <td class="{{ key }}">{{ entry[key]|datatype(key) }}</td>
               {% endfor %}
+                <td class="hash">{{hash}}</td>
               </tr>
               {% endfor %}
 

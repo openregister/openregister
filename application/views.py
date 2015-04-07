@@ -1,3 +1,5 @@
+import json
+
 from flask import (
     render_template,
     request,
@@ -81,9 +83,29 @@ def represent_entry(entry, suffix):
     return create_response(text, suffix)
 
 
+def json_representation(entry):
+    data = {"hash": entry.hash, "entry": entry.primitive}
+    out = json.dumps(
+        data,
+        sort_keys=True,
+        ensure_ascii=False)
+    return create_response(out, 'json')
+
+
 def represent_entries(entries, suffix):
-    response_data = [getattr(entry, suffix) for entry in entries]
-    text = '[' + ",".join(response_data) + ']'
+
+    # temp hack to wrap entry with hash as metadata
+    if suffix == 'json':
+        data = []
+        for entry in entries:
+            data.append({"hash": entry.hash, "entry": entry.primitive})
+        text = json.dumps(
+            data,
+            sort_keys=True,
+            ensure_ascii=False)
+    else:
+        response_data = [getattr(entry, suffix) for entry in entries]
+        text = '[' + ",".join(response_data) + ']'
     return create_response(text, suffix)
 
 
@@ -116,7 +138,11 @@ def render_entry(entry, template, register, suffix):
                                    entry=entry.primitive)
 
     if suffix in representations:
-        return represent_entry(entry, suffix)
+        # temp hack to wrap entry with hash as metadata
+        if suffix == "json":
+            return json_representation(entry)
+        else:
+            return represent_entry(entry, suffix)
     else:
         abort(404)
 
